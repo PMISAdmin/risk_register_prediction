@@ -1,0 +1,37 @@
+name: Scheduled Start Container Instance
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # Setiap hari pada pukul 08:00 UTC
+
+jobs:
+  start-container:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Login to Azure
+        id: login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+
+      - name: Start Azure Container Instance
+        id: start-instance
+        run: |
+          az container start --resource-group RG_DEV --name prediction-risk-register
+
+      - name: Notify Slack on Login Failure
+        if: steps.login.outcome == 'failure'  # Hanya mengirim notifikasi jika login gagal
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{
+            "text": "Failed to log in to Azure."
+          }' https://hooks.slack.com/services/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
+
+      - name: Notify Slack on Start Failure
+        if: failure()  # Hanya mengirim notifikasi jika langkah memulai container gagal
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{
+            "text": "Failed to restart container instance `prediction-risk-register`."
+          }' https://hooks.slack.com/services/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
