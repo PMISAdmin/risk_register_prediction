@@ -52,9 +52,9 @@ for file in files:
         break  # Stop executing further scripts if there's an error
 
     # Run pytest after a specific script
-    if file == 'C:/Project/Data Science/NLP Project/py/01_nlp_analysis.py':
+    if file == 'app/py/01_nlp_analysis.py':
         print("Running pytest after 01_nlp_analysis.py")
-        pytest_result = subprocess.run(['pytest', '-v', 'C:/Project/Data Science/NLP Project/py/test_pre_predict.py'], capture_output=True, text=True)
+        pytest_result = subprocess.run(['pytest', '-v', 'app/py/test_pre_predict.py'], capture_output=True, text=True)
         
         # Print pytest stdout and stderr
         print("STDOUT from pytest:")
