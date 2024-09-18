@@ -2,7 +2,8 @@ name: Scheduled Start Container Instance
 
 on:
   schedule:
-    - cron: '0 8 * * *'  # Setiap hari pada pukul 08:00 UTC
+    - cron: '*/2 * * * *'  # Setiap 2 menit
+
 
 jobs:
   start-container:
