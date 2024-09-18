@@ -1,10 +1,7 @@
-name: Build-Images-to-registry Pipeline
+name: Build and Deploy
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
     branches:
       - main
 
@@ -22,18 +19,32 @@ jobs:
       - name: Login to Azure Container Registry
         uses: docker/login-action@v2
         with:
-          registry: monitoringmodel.azurecr.io  # Nama ACR Anda
-          username: ${{ secrets.AZURE_ACR_USERNAME }}  # Username ACR
-          password: ${{ secrets.AZURE_ACR_PASSWORD }}  # Password/token ACR
+          registry: monitoringmodel.azurecr.io
+          username: ${{ secrets.AZURE_ACR_USERNAME }}
+          password: ${{ secrets.AZURE_ACR_PASSWORD }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: monitoringmodel.azurecr.io/risk_register_predict:latest  # Nama image
+          tags: monitoringmodel.azurecr.io/risk_register_predict:latest
 
       - name: Deploy with Docker
         run: |
           docker pull monitoringmodel.azurecr.io/risk_register_predict:latest
-          docker run -d --name risk_predictor monitoringmodel.azurecr.io/risk_register_predict:latest
+          docker run -d --name risk_predictor \
+            -e AZURE_STORAGE_ACCOUNT_KEY=${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} \
+            -e AZURE_STORAGE_ACCOUNT_NAME=${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }} \
+            -e AZURE_CONNECTION_STRING=${{ secrets.AZURE_CONNECTION_STRING }} \
+            -e DB_HOST=${{ secrets.DB_HOST }} \
+            -e DB_PORT=${{ secrets.DB_PORT }} \
+            -e DB_USER=${{ secrets.DB_USER }} \
+            -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -e DB_NAME=${{ secrets.DB_NAME }} \
+            -e DB_NAME_MODEL=${{ secrets.DB_NAME_MODEL }} \
+            -e DB_HOST_MODEL=${{ secrets.DB_HOST_MODEL }} \
+            -e DB_PORT_MODEL=${{ secrets.DB_PORT_MODEL }} \
+            -e DB_USER_MODEL=${{ secrets.DB_USER_MODEL }} \
+            -e DB_PASSWORD_MODEL=${{ secrets.DB_PASSWORD_MODEL }} \
+            monitoringmodel.azurecr.io/risk_register_predict:latest
