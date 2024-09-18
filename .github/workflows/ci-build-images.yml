@@ -29,10 +29,14 @@ jobs:
           context: .
           push: true
           tags: monitoringmodel.azurecr.io/risk_register_predict:latest
+          build-args: |
+            CACHEBUST=$(date +%s)
 
       - name: Deploy with Docker
         run: |
           docker pull monitoringmodel.azurecr.io/risk_register_predict:latest
+          docker stop risk_predictor || true
+          docker rm risk_predictor || true
           docker run -d --name risk_predictor \
             -e AZURE_STORAGE_ACCOUNT_KEY=${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} \
             -e AZURE_STORAGE_ACCOUNT_NAME=${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }} \
