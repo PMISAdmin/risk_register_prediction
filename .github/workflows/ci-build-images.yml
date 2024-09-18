@@ -23,6 +23,27 @@ jobs:
           username: ${{ secrets.AZURE_ACR_USERNAME }}
           password: ${{ secrets.AZURE_ACR_PASSWORD }}
 
+      - name: Create .env file
+        run: |
+          echo "# localtoblob" > .env
+          echo "AZURE_STORAGE_ACCOUNT_KEY=${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}" >> .env
+          echo "AZURE_STORAGE_ACCOUNT_NAME=${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}" >> .env
+          echo "AZURE_CONNECTION_STRING=${{ secrets.AZURE_CONNECTION_STRING }}" >> .env
+          echo "" >> .env
+          echo "# json to db" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "" >> .env
+          echo "# data to training model" >> .env
+          echo "DB_NAME_MODEL=${{ secrets.DB_NAME_MODEL }}" >> .env
+          echo "DB_HOST_MODEL=${{ secrets.DB_HOST_MODEL }}" >> .env
+          echo "DB_PORT_MODEL=${{ secrets.DB_PORT_MODEL }}" >> .env
+          echo "DB_USER_MODEL=${{ secrets.DB_USER_MODEL }}" >> .env
+          echo "DB_PASSWORD_MODEL=${{ secrets.DB_PASSWORD_MODEL }}" >> .env
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
@@ -38,17 +59,5 @@ jobs:
           docker stop risk_predictor || true
           docker rm risk_predictor || true
           docker run -d --name risk_predictor \
-            -e AZURE_STORAGE_ACCOUNT_KEY=${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} \
-            -e AZURE_STORAGE_ACCOUNT_NAME=${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }} \
-            -e AZURE_CONNECTION_STRING=${{ secrets.AZURE_CONNECTION_STRING }} \
-            -e DB_HOST=${{ secrets.DB_HOST }} \
-            -e DB_PORT=${{ secrets.DB_PORT }} \
-            -e DB_USER=${{ secrets.DB_USER }} \
-            -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            -e DB_NAME=${{ secrets.DB_NAME }} \
-            -e DB_NAME_MODEL=${{ secrets.DB_NAME_MODEL }} \
-            -e DB_HOST_MODEL=${{ secrets.DB_HOST_MODEL }} \
-            -e DB_PORT_MODEL=${{ secrets.DB_PORT_MODEL }} \
-            -e DB_USER_MODEL=${{ secrets.DB_USER_MODEL }} \
-            -e DB_PASSWORD_MODEL=${{ secrets.DB_PASSWORD_MODEL }} \
+            --env-file .env \
             monitoringmodel.azurecr.io/risk_register_predict:latest
