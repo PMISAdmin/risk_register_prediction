@@ -23,10 +23,3 @@ jobs:
       - name: Start Azure Container Instance
         run: |
           az container start --resource-group RG_DEV --name prediction-risk-register
-
-      - name: Notify Slack on Failure
-        if: failure()
-        run: |
-          curl -X POST -H 'Content-type: application/json' --data '{
-            "text": "Failed to restart container instance `prediction-risk-register`."
-          }' https://hooks.slack.com/services/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
