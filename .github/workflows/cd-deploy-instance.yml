@@ -4,7 +4,6 @@ on:
   schedule:
     - cron: '*/2 * * * *'  # Setiap 2 menit
 
-
 jobs:
   start-container:
     runs-on: ubuntu-latest
@@ -18,7 +17,20 @@ jobs:
           client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
 
+      - name: Check Container Status
+        id: check-status
+        run: |
+          STATUS=$(az container show --resource-group RG_DEV --name prediction-risk-register --query "instanceView.state" -o tsv)
+          echo "Container status: $STATUS"
+          if [[ "$STATUS" == "Running" ]]; then
+            echo "Container is already running."
+            echo "::set-output name=running::true"
+          else
+            echo "::set-output name=running::false"
+          fi
+
       - name: Start Azure Container Instance
+        if: steps.check-status.outputs.running == 'false'  # Hanya mulai jika kontainer tidak berjalan
         id: start-instance
         run: |
           az container start --resource-group RG_DEV --name prediction-risk-register
