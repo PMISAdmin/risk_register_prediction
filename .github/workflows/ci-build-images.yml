@@ -58,9 +58,9 @@ jobs:
 
       - name: Deploy with Docker
         run: |
-          docker pull monitoringmodel.azurecr.io/risk_register_predict:latest
+          docker pull monitoringmodel.azurecr.io/risk-register-prediction:latest
           docker stop risk_predictor || true
           docker rm risk_predictor || true
           docker run -d --name risk_predictor \
             --env-file .env \
-            monitoringmodel.azurecr.io/risk_register_predict:latest
+            monitoringmodel.azurecr.io/risk-register-prediction:latest
