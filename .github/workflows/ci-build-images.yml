@@ -43,6 +43,9 @@ jobs:
           echo "DB_PORT_MODEL=${{ secrets.DB_PORT_MODEL }}" >> .env
           echo "DB_USER_MODEL=${{ secrets.DB_USER_MODEL }}" >> .env
           echo "DB_PASSWORD_MODEL=${{ secrets.DB_PASSWORD_MODEL }}" >> .env
+          echo "" >> .env
+          echo "# Slack Webhook" >> .env
+          echo "SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}" >> .env
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
