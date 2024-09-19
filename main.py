@@ -2,6 +2,9 @@ import subprocess
 import requests
 import json
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # List of Python files to run
 files = [
@@ -13,8 +16,13 @@ files = [
 ]
 
 def send_slack_message(message):
-    webhook_url = 'https://hooks.slack.com/services/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'
+    # Mengambil URL dari environment variable
+    webhook_url = os.getenv('SLACK_WEBHOOK_URL')
     
+    if not webhook_url:
+        print("Webhook URL tidak ditemukan di .env file.")
+        return
+
     payload = {
         'text': message
     }
@@ -27,7 +35,7 @@ def send_slack_message(message):
         response.raise_for_status()  # Raise an error for bad responses
     except requests.exceptions.RequestException as e:
         print(f"Failed to send message to Slack: {e}")
-
+        
 # Run each file sequentially
 for file in files:
     print(f"Running {file}")
