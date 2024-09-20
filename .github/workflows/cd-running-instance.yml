@@ -23,3 +23,12 @@ jobs:
       - name: Start Azure Container Instance
         run: |
           az container start --resource-group RG_DEV --name risk-register-predict
+
+      - name: Wait for Container to Start
+        run: |
+          sleep 10
+          az container show --resource-group RG_DEV --name risk-register-predict --query "instanceView.state"
+
+      - name: Get Container Logs
+        run: |
+          az container logs --resource-group RG_DEV --name risk-register-predict
