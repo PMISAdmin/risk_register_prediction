@@ -1,8 +1,4 @@
-name: Scheduled Start Container Instance
-
-on:
-  schedule:
-    - cron: '*/5 * * * *'  # Setiap 5 menit
+name: Start Container Instance
 
 permissions:
   id-token: write
