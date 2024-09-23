@@ -174,7 +174,7 @@ def is_test_value(text):
     '''Define invalid data'''
     if not isinstance(text, str):
         return False
-    return text.strip().lower() == 'test'
+    return text.strip().lower() == 'test' or text.strip().lower() == 'test load'
 
 def is_single_sentence_or_word(text):
     '''Check if the text is a single sentence or word'''
