@@ -231,6 +231,9 @@ labeled_data['impact_consequences'] = labeled_data['impact_consequences'].apply(
 
 labeled_data.head()
 
+# delete soon
+labeled_data = labeled_data.head(100)
+
 """# Split Data
 ---
 """
