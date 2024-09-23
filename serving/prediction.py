@@ -107,6 +107,12 @@ def cleaning_data_input(data_input):
 
 data_cleaning = cleaning_data_input(data_input)
 
+def is_test_value(text):
+    '''Define invalid data'''
+    if not isinstance(text, str):
+        return False
+    return text.strip().lower() == 'test' or text.strip().lower() == 'test load'
+
 def is_single_sentence_or_word(text):
     '''Check if the text is a single sentence or word'''
     return isinstance(text, str) and len(text.split()) <= 1
@@ -114,32 +120,32 @@ def is_single_sentence_or_word(text):
 def remove_invalid_rows(df, column_to_exclude):
     '''Remove invalid data while keeping the specified column intact'''
     print('Sebelum drop invalid data:', df.shape)
-    
+
     # Simpan kolom yang akan dikecualikan
     excluded_column = df[column_to_exclude].copy()
 
     # Mask untuk baris yang mengandung 'test'
     mask_test = df.drop(columns=[column_to_exclude]).apply(lambda row: any(is_test_value(val) for val in row), axis=1)
-    
+
     # Mask untuk kolom yang hanya berisi satu kalimat atau satu kata
     mask_single = df.drop(columns=[column_to_exclude]).apply(lambda row: sum(is_single_sentence_or_word(val) for val in row) > 2, axis=1)
-    
+
     # Gabungkan kedua mask
     mask = mask_test | mask_single
-    
+
     # Hapus baris yang memenuhi kondisi
     df_filtered = df[~mask].copy()
 
     # Ambil baris yang dihapus
     mask_data = df[mask].copy()
-    
+
     # Tambahkan kolom yang dikecualikan ke DataFrame yang difilter
     df_filtered[column_to_exclude] = excluded_column[~mask].values
-    
-    print('Sesudah drop invalid data:', df_filtered.shape)
-    
-    return df_filtered, mask_data
 
+    print('Sesudah drop invalid data:', df_filtered.shape)
+
+    return df_filtered, mask_data
+    
 # Use the function to filter the data_cleaning DataFrame
 column_to_exclude = 'CATEGORY FOR PREDICTION'
 
