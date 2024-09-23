@@ -145,7 +145,7 @@ def remove_invalid_rows(df, column_to_exclude):
     print('Sesudah drop invalid data:', df_filtered.shape)
 
     return df_filtered, mask_data
-    
+
 # Use the function to filter the data_cleaning DataFrame
 column_to_exclude = 'CATEGORY FOR PREDICTION'
 
@@ -156,7 +156,7 @@ def remove_none_rows(df, required_columns):
     print('Sebelum drop invalid data:', df.shape)
 
     # Membuat mask untuk baris yang memiliki nilai kosong di kolom yang diperlukan
-    mask = df[required_columns].isnull().any(axis=1)
+    mask = df[required_columns].isnull().any(axis=1) | (df[required_columns] == '').any(axis=1)
     
     # Hapus baris yang memenuhi kondisi
     df_filtered = df[~mask].copy()
