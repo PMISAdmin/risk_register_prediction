@@ -163,7 +163,7 @@ def get_model():
     model = pd.read_pickle(model_path)
     
     # Load data
-    data_preprocess_path = 'C:/Project/Data Science/NLP Project/serving/model/data_preprocess.pkl'
+    data_preprocess_path = r'app/serving/model/data_preprocess.pkl'
     if not os.path.exists(data_preprocess_path):
         raise FileNotFoundError(f"Data preprocess file not found: {data_preprocess_path}")
 
@@ -201,7 +201,7 @@ def test_metric():
     balanced_acc = balanced_accuracy_score(y_train, y_pred)
 
     # Define threshold (convert to decimal if needed)
-    threshold = 0.75
+    threshold = 0.85
 
     # Validate metrics
     metrics_failed = False
