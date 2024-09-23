@@ -207,6 +207,8 @@ print('description data', sum(labeled_data['description'] == 'test'))
 print('cause data', sum(labeled_data['cause'] == 'test'))
 print('description data', sum(labeled_data['description'] == 'test'))
 
+# delete soon
+labeled_data = labeled_data.head(1000)
 import spacy
 
 # Muat model bahasa Inggris
@@ -230,9 +232,6 @@ labeled_data['description'] = labeled_data['description'].apply(remove_stop_word
 labeled_data['impact_consequences'] = labeled_data['impact_consequences'].apply(remove_stop_words)
 
 labeled_data.head()
-
-# delete soon
-labeled_data = labeled_data.head(100)
 
 """# Split Data
 ---
