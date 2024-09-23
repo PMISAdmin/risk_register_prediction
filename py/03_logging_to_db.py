@@ -28,7 +28,7 @@ def delete_file_content(file_path):
     open(file_path, 'w').close()
 
 # Define paths to the JSON files (adjust paths if running in Docker or other environments)
-base_path = os.path.abspath('app/logs/')
+base_path = os.path.join(os.getcwd(), 'app/logs/')
 training_log_path = os.path.join(base_path, 'training_log.json')
 re_train_log_path = os.path.join(base_path, 're_train_log.json')
 valid_log_path = os.path.join(base_path, 'valid_log.json')
