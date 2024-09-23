@@ -224,16 +224,16 @@ def remove_none_rows(df, required_columns):
     print('Sebelum drop invalid data:', df.shape)
 
     # Membuat mask untuk baris yang memiliki nilai kosong di kolom yang diperlukan
-    mask = df[required_columns].isnull().any(axis=1)
-
+    mask = df[required_columns].isnull().any(axis=1) | (df[required_columns] == '').any(axis=1)
+    
     # Hapus baris yang memenuhi kondisi
     df_filtered = df[~mask].copy()
 
     # Ambil baris yang dihapus
     mask_data = df[mask].copy()
-
+    
     print('Sesudah drop invalid data:', df_filtered.shape)
-
+    
     return df_filtered, mask_data
 
 required_columns = ['description', 'cause', 'impact_consequences']
