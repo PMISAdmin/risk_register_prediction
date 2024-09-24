@@ -111,65 +111,36 @@ def is_test_value(text):
     '''Define invalid data'''
     if not isinstance(text, str):
         return False
-    return text.strip().lower() == 'test' or text.strip().lower() == 'test load'
+    return text.strip().lower() == 'test'
 
-def is_single_sentence_or_word(text):
-    '''Check if the text is a single sentence or word'''
-    return isinstance(text, str) and len(text.split()) <= 1
-
-def remove_invalid_rows(df, column_to_exclude):
-    '''Remove invalid data while keeping the specified column intact'''
-    print('Sebelum drop invalid data:', df.shape)
-
-    # Simpan kolom yang akan dikecualikan
-    excluded_column = df[column_to_exclude].copy()
-
-    # Mask untuk baris yang mengandung 'test'
-    mask_test = df.drop(columns=[column_to_exclude]).apply(lambda row: any(is_test_value(val) for val in row), axis=1)
-
-    # Mask untuk kolom yang hanya berisi satu kalimat atau satu kata
-    mask_single = df.drop(columns=[column_to_exclude]).apply(lambda row: sum(is_single_sentence_or_word(val) for val in row) > 2, axis=1)
-
-    # Gabungkan kedua mask
-    mask = mask_test | mask_single
-
-    # Hapus baris yang memenuhi kondisi
-    df_filtered = df[~mask].copy()
-
-    # Ambil baris yang dihapus
-    mask_data = df[mask].copy()
-
-    # Tambahkan kolom yang dikecualikan ke DataFrame yang difilter
-    df_filtered[column_to_exclude] = excluded_column[~mask].values
-
-    print('Sesudah drop invalid data:', df_filtered.shape)
-
-    return df_filtered, mask_data
+def invalid_data(data_cleaning):
+    '''Filter out rows with invalid data'''
+    # Create a mask for rows with invalid values
+    mask = data_cleaning[['description', 'cause', 'impact_consequences']].apply(lambda row: any(is_test_value(val) for val in row), axis=1)
+    
+    # Filter out rows that match the mask
+    data_cleaning_filtered = data_cleaning[~mask].copy()
+    
+    return data_cleaning_filtered
 
 # Use the function to filter the data_cleaning DataFrame
-column_to_exclude = 'CATEGORY FOR PREDICTION'
+data_cleaning = invalid_data(data_cleaning)
 
-data_cleaning, mask_data = remove_invalid_rows(data_cleaning, column_to_exclude)
+# invalid data
+mask_invalid = data_cleaning[['description', 'cause', 'impact_consequences']].apply(
+    lambda row: row.str.strip().str.lower().isin(['test', 'test load']).any(), axis=1
+)
 
-def remove_none_rows(df, required_columns):
-    '''Remove rows with any invalid (empty) data in specified columns'''
-    print('Sebelum drop invalid data:', df.shape)
+data_cleaning = data_cleaning[~mask_invalid]
 
-    # Membuat mask untuk baris yang memiliki nilai kosong di kolom yang diperlukan
-    mask = df[required_columns].isnull().any(axis=1) | (df[required_columns] == '').any(axis=1)
-    
-    # Hapus baris yang memenuhi kondisi
-    df_filtered = df[~mask].copy()
+# Filter out rows with None or empty data
+mask_none_data = data_cleaning[['description', 'cause', 'impact_consequences']].isnull().any(axis=1) | (
+    data_cleaning[['description', 'cause', 'impact_consequences']] == '').any(axis=1
+)
 
-    # Ambil baris yang dihapus
-    mask_data = df[mask].copy()
-    
-    print('Sesudah drop invalid data:', df_filtered.shape)
-    
-    return df_filtered, mask_data
+data_cleaning = data_cleaning[~mask_none_data]
 
-required_columns = ['description', 'cause', 'impact_consequences']
-data_cleaning, mask_data = remove_none_rows(data_cleaning, required_columns)
+print(data_cleaning[['description', 'cause', 'impact_consequences']].head())
 
 def predict_data_input(data_input, vectorizer, best_model, label_encoder):
     '''Predict with the best model and inverse transform the predictions'''
