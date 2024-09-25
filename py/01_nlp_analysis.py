@@ -73,7 +73,7 @@ def load_data_from_db(query):
     return pd.DataFrame()
 
 # load data
-query = 'SELECT * FROM "pms"."a6_02_risk_register_staging";'
+query = 'SELECT * FROM "pms"."a6_02_risk_register";'
 df = load_data_from_db(query)
 
 df.head(2)
