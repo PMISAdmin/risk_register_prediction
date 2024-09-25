@@ -60,4 +60,3 @@ def upload_files_to_blob(file_paths, connection_string, container_name, folder_p
 
 if __name__ == "__main__":
     upload_files_to_blob(files_to_upload, connection_string, container_name, folder_path)
-
