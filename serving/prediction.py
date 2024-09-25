@@ -60,7 +60,7 @@ def load_data_from_db(query):
     return pd.DataFrame()
 
 # Load data
-query = 'SELECT * FROM "pms"."a6_02_risk_register_staging";'
+query = 'SELECT * FROM "pms"."a6_02_risk_register";'
 df = load_data_from_db(query)
 
 print(df.head(2))
@@ -187,7 +187,7 @@ def update_db_with_predictions(predictions_df):
                 for index, row in predictions_df.iterrows():
                     if pd.notna(row['CATEGORY FOR PREDICTION']):
                         query = """
-                        UPDATE pms.a6_02_risk_register_staging
+                        UPDATE pms.a6_02_risk_register
                         SET "CATEGORY FOR PREDICTION" = %s
                         WHERE "cut_off_date" = %s AND "risk_code" = %s;
                         """
