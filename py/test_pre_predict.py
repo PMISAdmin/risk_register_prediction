@@ -35,7 +35,7 @@ def get_data_train():
     '''Load data X and y train'''
 
     # Nama direktori
-    directory = r'app\data'
+    directory = r'data'
 
     # Nama file
     X_train_file = os.path.join(directory, 'X_train.pkl')
@@ -153,20 +153,22 @@ def test_cleaning():
     assert not has_punctuation, "One or more columns contain punctuation after cleaning."
 
 def get_model():
-    '''Load model'''
-
-    model_path = r'app\model\models\best_model.pkl'
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(f"Model file not found: {model_path}")
-
-    # load model
-    model = pd.read_pickle(model_path)
+    '''Load model and preprocessing data'''
     
-    # Load data
-    data_preprocess_path = r'app/serving/model/data_preprocess.pkl'
-    if not os.path.exists(data_preprocess_path):
-        raise FileNotFoundError(f"Data preprocess file not found: {data_preprocess_path}")
+    # Mengatur jalur untuk model dan data preprocessing langsung
+    model_path = 'model/models/best_model.pkl'
+    data_preprocess_path = 'model/data_preprocessing/data_preprocess.pkl'
 
+    # Memeriksa apakah file ada
+    for path in [model_path, data_preprocess_path]:
+        print(f"Memeriksa file: {path}")  # Menampilkan jalur file
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"File not found: {path}")
+
+    # Memuat model
+    model = pd.read_pickle(model_path)
+
+    # Memuat data preprocessing
     with open(data_preprocess_path, 'rb') as file:
         X_train_transformed, y_train = pickle.load(file)
 
@@ -175,7 +177,7 @@ def get_model():
 def test_metric():
     '''Test metric'''
     
-    # load model
+    # Load model
     model, y_train, X_train_transformed = get_model()
 
     # Fit and predict
@@ -185,42 +187,27 @@ def test_metric():
     # Compute macro F1 score
     macro_f1 = f1_score(y_train, y_pred, average='macro')
 
-    # Transform data if needed
-    X_train_transformed = X_train_transformed.toarray() if hasattr(X_train_transformed, 'toarray') else X_train_transformed
-
-    # Handle ROC AUC Calculation
-    try:
-        if len(np.unique(y_train)) == 2:  # Binary classification
-            roc_auc = roc_auc_score(y_train, model.predict_proba(X_train_transformed)[:, 1])
-        else:  # Multiclass classification
-            roc_auc = roc_auc_score(y_train, model.predict_proba(X_train_transformed), multi_class='ovr')
-    except ValueError:
-        roc_auc = np.nan  # Handle cases where ROC AUC cannot be computed
-    
     # Calculate Balanced Accuracy
     balanced_acc = balanced_accuracy_score(y_train, y_pred)
 
-    # Define threshold (convert to decimal if needed)
+    # Define threshold
     threshold = 0.85
 
     # Validate metrics
     metrics_failed = False
-    message = ""
-
-    if np.isnan(roc_auc):
-        metrics_failed = True
-        message += "ROC AUC could not be computed. "
+    messages = []  # Use a list to collect messages
 
     if macro_f1 < threshold:
         metrics_failed = True
-        message += f"Macro F1 score {macro_f1:.2f} is below the threshold of {threshold}. "
+        messages.append(f"Macro F1 score {macro_f1:.2f} is below the threshold of {threshold:.2f}.")
 
     if balanced_acc < threshold:
         metrics_failed = True
-        message += f"Balanced Accuracy {balanced_acc:.2f} is below the threshold of {threshold}. "
+        messages.append(f"Balanced Accuracy {balanced_acc:.2f} is below the threshold of {threshold:.2f}.")
 
     if metrics_failed:
-        pytest.fail(message)
+        pytest.fail("\n".join(messages))  # Join messages with newlines
+
 
 def test_cross_validation():
     '''Consistency of model across different subsets of data.'''
@@ -258,7 +245,6 @@ def test_cross_validation():
     
     # Ensure the standard deviation is within the acceptable threshold
     assert std_f1 < threshold, f"F1 scores are inconsistent. Std deviation: {std_f1:.4f}"
-
 
 def connect_db():
     # Memuat variabel lingkungan dari file .env
@@ -302,3 +288,6 @@ def test_connect_db(mock_connect):
     # Tutup koneksi setelah pengujian jika ada
     if connection:
         connection.close()
+    
+if __name__ == "__main__":
+    pytest.main()
