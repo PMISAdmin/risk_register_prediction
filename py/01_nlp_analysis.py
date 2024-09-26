@@ -1058,22 +1058,22 @@ def hyperparameter_tuning(best_model_info):
     Parameters:
     ----------
     best_model_info : dict
-        A dictionary containing information about the best model.
+        A dictionary containing information about the best model. 
         The key 'model_name' is expected to contain the name of the model as a string.
 
     Returns:
     -------
     best_params_ : dict
         Dictionary of the best hyperparameters found during the search.
-
+        
     best_scores_ : dict
         Dictionary containing the best scores achieved with the best parameters for each metric.
-
+        
     Raises:
     ------
     KeyError
         If 'model_name' is not present in best_model_info.
-
+        
     ValueError
         If the specified model in 'model_name' is not supported.
 
@@ -1104,7 +1104,7 @@ def hyperparameter_tuning(best_model_info):
             }
             base_estimator = DecisionTreeClassifier()
             base_model = AdaBoostClassifier(base_estimator=base_estimator)
-
+        
         elif "RandomForestClassifier" in model_name:
             params_grid = {
                 'n_estimators': [50, 100, 200],
@@ -1117,17 +1117,18 @@ def hyperparameter_tuning(best_model_info):
 
         elif "XGBClassifier" in model_name:
              params_grid = {
-                    'n_estimators': [50, 100],
-                    'max_depth': [3, 6],
-                    'learning_rate': [0.1, 0.2],
-                    'subsample': [0.8, 1.0],
-                    'colsample_bytree': [0.8, 1.0],
-                    'gamma': [0, 0.1],
-                    'reg_alpha': [0, 0.1],
-                    'reg_lambda': [1, 1.5]
+                    'n_estimators': [100, 200, 300],
+                    'max_depth': [3, 5, 6, 7, 8],
+                    'learning_rate': [0.01, 0.1, 0.2, 0.3],
+                    'subsample': [0.6, 0.8, 1.0],
+                    'colsample_bytree': [0.6, 0.8, 1.0],
+                    'gamma': [0, 0.1, 0.2],
+                    'reg_alpha': [0, 0.1, 0.5],
+                    'reg_lambda': [1, 1.5, 2.0],
+                    'min_child_weight': [1, 3, 5]
                 }
              base_model = XGBClassifier()
-
+        
         elif "RUSBoostClassifier" in model_name:
             params_grid = {
                 'estimator__n_estimators': [50, 100, 200],
@@ -1137,11 +1138,11 @@ def hyperparameter_tuning(best_model_info):
             }
             base_estimator = DecisionTreeClassifier()
             base_model = RUSBoostClassifier(base_estimator=base_estimator)
-
+        
         elif "EUSBoost" in model_name:
             # Skip hyperparameter tuning for EUSBoost
             return None, None
-
+        
         else:
             raise ValueError(f"Unsupported model: {model_name}")
 
@@ -1159,12 +1160,12 @@ def hyperparameter_tuning(best_model_info):
 
         # Initialize RandomizedSearchCV
         random_search = RandomizedSearchCV(
-            estimator=model,
-            param_distributions=params_grid,
-            n_iter=5,
-            cv=skf,
-            scoring=scoring,
-            refit='f1_macro',
+            estimator=model, 
+            param_distributions=params_grid, 
+            n_iter=5, 
+            cv=skf, 
+            scoring=scoring, 
+            refit='f1_macro', 
             n_jobs=-1
         )
 
@@ -1189,7 +1190,7 @@ def hyperparameter_tuning(best_model_info):
     except Exception as e:
         print(f"An error occurred during hyperparameter tuning: {e}")
         return None, None
-
+        
 # call function
 results = []
 
