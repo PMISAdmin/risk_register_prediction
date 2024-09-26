@@ -49,9 +49,14 @@ def run_python_file(file):
 
 # Run each file sequentially
 for file in files:
-    result = run_python_file(file)
-    
-    # If there is an error, send a Slack notification and stop further execution
+    print(f"Running {file}")
+    if file == '/app/py/test_pre_predict.py':
+        result = subprocess.run(['pytest', file], capture_output=True, text=True)
+    else:
+        result = subprocess.run(['python', '-u', file], capture_output=True, text=True)
+
+    print(f"Return code for {file}: {result.returncode}")
+
     if result.returncode != 0:
         error_message = (
             f"Error in Project NLP Risk Register\n"
@@ -60,5 +65,7 @@ for file in files:
             f"STDERR: {result.stderr.strip()}"
         )
         print(error_message)
-        send_slack_message(error_message)
-        break  # Stop executing further scripts if there's an error
+
+        if file == '/app/py/test_pre_predict.py':
+            print("Stopping further execution due to test failure.")
+            break  # Stop execution if test fails
