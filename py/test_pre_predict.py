@@ -206,8 +206,7 @@ def test_metric():
         messages.append(f"Balanced Accuracy {balanced_acc:.2f} is below the threshold of {threshold:.2f}.")
 
     if metrics_failed:
-        pytest.fail("\n".join(messages))  # Join messages with newlines
-
+        raise ValueError("\n".join(messages))  # Raise an exception with the messages
 
 def test_cross_validation():
     '''Consistency of model across different subsets of data.'''
