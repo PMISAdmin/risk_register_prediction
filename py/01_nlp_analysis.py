@@ -1094,26 +1094,33 @@ def hyperparameter_tuning(best_model_info):
         else:
             raise ValueError("Data configuration not recognized.")
 
-        # Define the base model and parameter grid based on model_name
         if "AdaBoostClassifier" in model_name:
             params_grid = {
-                'estimator__n_estimators': [50, 100, 200],
-                'estimator__learning_rate': [0.01, 0.1, 1.0],
+                'estimator__n_estimators': [50, 100, 200, 300],
+                'estimator__learning_rate': [0.01, 0.1, 0.5, 1.0, 2.0],
                 'estimator__algorithm': ['SAMME', 'SAMME.R'],
-                'estimator__base_estimator__max_depth': [1, 3, 5]
+                'estimator__base_estimator__max_depth': [1, 2, 3, 4, 5],
+                'estimator__base_estimator__min_samples_split': [2, 5, 10],
+                'estimator__base_estimator__min_samples_leaf': [1, 2, 4],
+                'estimator__base_estimator__max_features': ['auto', 'sqrt', 'log2'],
+                'estimator__base_estimator__criterion': ['gini', 'entropy']
             }
             base_estimator = DecisionTreeClassifier()
             base_model = AdaBoostClassifier(base_estimator=base_estimator)
         
         elif "RandomForestClassifier" in model_name:
             params_grid = {
-                'n_estimators': [50, 100, 200],
-                'max_depth': [10, 20, 30],
-                'min_samples_split': [2, 5, 10],
-                'min_samples_leaf': [1, 2, 4],
-                'bootstrap': [True]
+                'n_estimators': [50, 100, 200, 300],
+                'max_depth': [10, 20, 30, None],
+                'min_samples_split': [2, 5, 10, 15],
+                'min_samples_leaf': [1, 2, 4, 6],
+                'max_features': ['auto', 'sqrt', 'log2'],
+                'bootstrap': [True, False],
+                'criterion': ['gini', 'entropy'],
+                'class_weight': [None, 'balanced']
             }
             base_model = RandomForestClassifier()
+
 
         elif "XGBClassifier" in model_name:
              params_grid = {
@@ -1131,10 +1138,13 @@ def hyperparameter_tuning(best_model_info):
         
         elif "RUSBoostClassifier" in model_name:
             params_grid = {
-                'estimator__n_estimators': [50, 100, 200],
-                'estimator__learning_rate': [0.01, 0.1, 1.0],
-                'estimator__base_estimator__max_depth': [1, 3, 5],
-                'estimator__sampling_strategy': ['auto', 0.5, 0.75]
+                'estimator__n_estimators': [50, 100, 200, 300],
+                'estimator__learning_rate': [0.01, 0.1, 0.5, 1.0],
+                'estimator__base_estimator__max_depth': [1, 2, 3, 4, 5],
+                'estimator__base_estimator__min_samples_split': [2, 5],
+                'estimator__base_estimator__min_samples_leaf': [1, 2],
+                'estimator__sampling_strategy': ['auto', 0.5, 0.75, 1.0],
+                'estimator__base_estimator__criterion': ['gini', 'entropy']
             }
             base_estimator = DecisionTreeClassifier()
             base_model = RUSBoostClassifier(base_estimator=base_estimator)
@@ -1162,7 +1172,7 @@ def hyperparameter_tuning(best_model_info):
         random_search = RandomizedSearchCV(
             estimator=model, 
             param_distributions=params_grid, 
-            n_iter=5, 
+            n_iter=10, 
             cv=skf, 
             scoring=scoring, 
             refit='f1_macro', 
@@ -1190,7 +1200,7 @@ def hyperparameter_tuning(best_model_info):
     except Exception as e:
         print(f"An error occurred during hyperparameter tuning: {e}")
         return None, None
-        
+
 # call function
 results = []
 
